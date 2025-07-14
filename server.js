@@ -26,6 +26,10 @@ const server = http.createServer(async (req, res) => {
     return accountRoutes(req, res, parsedUrl);
   }
 
+  if (parsedUrl.pathname === '/health') {
+    return sendJson(res, 200, { status: 'ok' });
+  }
+
   sendJson(res, 404, { message: 'Endpoint not found' });
 });
 
