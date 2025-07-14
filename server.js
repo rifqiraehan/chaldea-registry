@@ -4,14 +4,19 @@ require('dotenv').config({ quiet: true });
 
 const accountRoutes = require('./routes/accountRoutes');
 const authRoutes = require('./routes/authRoutes');
-const parseBody = require('./utils/parseBody');
+const parseJsonBody = require('./utils/parseJsonBody');
 const sendJson = require('./utils/sendJson');
 
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  await parseBody(req);
+
+  try {
+    await parseJsonBody(req);
+  } catch (err) {
+    return sendJson(res, 400, { message: err.message });
+  }
 
   if (parsedUrl.pathname.startsWith('/api/auth')) {
     return authRoutes(req, res, parsedUrl);

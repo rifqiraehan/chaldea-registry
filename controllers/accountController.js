@@ -1,6 +1,5 @@
 const { createAccount, getAccountsByUser, deleteAccount, updateAccount } = require('../models/Account');
 const sendJson = require('../utils/sendJson');
-const readRequestBody = require('../utils/readRequestBody');
 
 async function create(req, res) {
   const userId = req.user.id;
@@ -38,7 +37,7 @@ async function update(req, res, parsedUrl) {
   if (!accountId) return sendJson(res, 400, { message: 'Missing account ID' });
 
   try {
-    const data = await readRequestBody(req);
+    const data = req.body;
 
     const validationErrors = isValidAccountData(data, true);
     if (validationErrors.length > 0) {
