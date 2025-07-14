@@ -2,3 +2,4 @@
 .env
 *.txt
 example.json
+.vscode
