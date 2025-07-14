@@ -1,4 +1,9 @@
-const { findUserByEmail, createUser } = require('../models/User');
+const {
+  findUserByEmail,
+  findUserByEmailOrUsername,
+  createUser
+} = require('../models/User');
+
 const sendJson = require('../utils/sendJson');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -20,19 +25,24 @@ async function register(req, res) {
   });
 
   delete user.password;
-
   sendJson(res, 201, { message: 'User registered', user });
 }
 
 async function login(req, res) {
-  const { email, password } = req.body;
-  const user = await findUserByEmail(email);
+  const { identifier, email, username, password } = req.body;
+
+  const identity = identifier || email || username; // fallback untuk kompatibilitas test lama
+  if (!identity || !password) {
+    return sendJson(res, 400, { message: 'Missing credentials' });
+  }
+
+  const user = await findUserByEmailOrUsername(identity);
   if (!user) return sendJson(res, 401, { message: 'Invalid credentials' });
 
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) return sendJson(res, 401, { message: 'Invalid credentials' });
 
-  const token = jwt.sign({ id: user._id, email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
   sendJson(res, 200, { token });
 }
 

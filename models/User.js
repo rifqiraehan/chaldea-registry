@@ -5,6 +5,16 @@ async function findUserByEmail(email) {
   return db.collection('users').findOne({ email });
 }
 
+async function findUserByEmailOrUsername(identifier) {
+  const db = await connectDB();
+  return db.collection('users').findOne({
+    $or: [
+      { email: identifier },
+      { username: identifier }
+    ]
+  });
+}
+
 async function createUser(userData) {
   const db = await connectDB();
   const result = await db.collection('users').insertOne(userData);
@@ -15,5 +25,6 @@ async function createUser(userData) {
 
 module.exports = {
   findUserByEmail,
+  findUserByEmailOrUsername,
   createUser
 };

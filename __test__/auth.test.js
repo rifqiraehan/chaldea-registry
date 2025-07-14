@@ -25,7 +25,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await db.collection('users').deleteMany({ email: TEST_EMAIL });
   await client.close();
-  
+
   await new Promise((resolve) => appInstance.close(resolve));
 });
 
@@ -78,5 +78,17 @@ describe('Auth API', () => {
       });
 
     expect(res.statusCode).toBe(401);
+  });
+
+  it('should login with username instead of email', async () => {
+    const res = await request(appInstance)
+      .post('/api/auth/login')
+      .send({
+        identifier: TEST_USERNAME,
+        password: TEST_PASSWORD
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('token');
   });
 });
